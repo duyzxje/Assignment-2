@@ -21,7 +21,7 @@ def test_login_valid(driver):
     time.sleep(1)  # Chờ 1 giây
     driver.find_element(By.XPATH, "//*[@id='top']/div/div[2]/ul/li[2]/div/a").click()  # Nhấp vào tài khoản
     driver.find_element(By.CSS_SELECTOR, "a.dropdown-item[href*='route=account/login']").click()  # Nhấp vào đăng nhập
-    driver.find_element(By.NAME, "email").send_keys("duy@gmail.com")  # Nhập email
+    driver.find_element(By.NAME, "email").send_keys("anhduy123456@gmail.com")  # Nhập email
     driver.find_element(By.NAME, "password").send_keys("123456")  # Nhập mật khẩu
     submit_button = driver.find_element(By.CSS_SELECTOR, "button.btn.btn-primary")  # Tìm nút đăng nhập
     submit_button.click()  # Nhấp vào nút đăng nhập
@@ -32,7 +32,7 @@ def test_login_invalid(driver):
     time.sleep(1)  # Chờ 1 giây
     driver.find_element(By.XPATH, "//*[@id='top']/div/div[2]/ul/li[2]/div/a").click()  # Nhấp vào tài khoản
     driver.find_element(By.CSS_SELECTOR, "a.dropdown-item[href*='route=account/login']").click()  # Nhấp vào đăng nhập
-    driver.find_element(By.NAME, "email").send_keys("duy@gmail.com")  # Nhập email
+    driver.find_element(By.NAME, "email").send_keys("anhduy123456@gmail.com")  # Nhập email
     driver.find_element(By.NAME, "password").send_keys("123")  # Nhập mật khẩu sai
     submit_button = driver.find_element(By.CSS_SELECTOR, "button.btn.btn-primary")  # Tìm nút đăng nhập
     submit_button.click()  # Nhấp vào nút đăng nhập
@@ -44,7 +44,7 @@ def test_login_invalid(driver):
 def test_logout(driver):
     driver.get("https://demo.opencart.com/en-gb?route=account/login")  # Mở trang đăng nhập
     time.sleep(1)  # Chờ 1 giây
-    driver.find_element(By.NAME, "email").send_keys("duy@gmail.com")  # Nhập email
+    driver.find_element(By.NAME, "email").send_keys("anhduy123456@gmail.com")  # Nhập email
     driver.find_element(By.NAME, "password").send_keys("123456")  # Nhập mật khẩu
     submit_button = driver.find_element(By.CSS_SELECTOR, "button.btn.btn-primary")  # Tìm nút đăng nhập
     submit_button.click()  # Nhấp vào nút đăng nhập
@@ -107,7 +107,7 @@ def add_to_cart(driver):
     time.sleep(3)  # Chờ trang tải xong
 
     # Chờ cho nút đăng nhập có thể nhấp được và nhấn
-    login_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn.btn-primary")))
+    login_button = driver.find_element(By.XPATH, "/html/body/main/div[2]/div/div/div/div[2]/div/form/div[3]/button")
     login_button.click()
 
     # Chờ cho việc đăng nhập hoàn tất (kiểm tra tiêu đề trang hoặc một phần tử nào đó)
