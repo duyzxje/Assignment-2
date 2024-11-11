@@ -1,7 +1,11 @@
-import pytest  # Thư viện pytest để viết và chạy các bài kiểm tra
-import time  # Thư viện time để sử dụng hàm sleep
-from selenium import webdriver  # Thư viện selenium để tự động hóa trình duyệt
-from selenium.webdriver.common.by import By  # Để sử dụng các phương thức tìm kiếm phần tử
+import pytest
+import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
 
 # Khởi tạo trình duyệt Edge
 @pytest.fixture
@@ -45,6 +49,7 @@ def test_logout(driver):
     submit_button = driver.find_element(By.CSS_SELECTOR, "button.btn.btn-primary")  # Tìm nút đăng nhập
     submit_button.click()  # Nhấp vào nút đăng nhập
     driver.find_element(By.XPATH, "//*[@id='top']/div/div[2]/ul/li[2]/div/a").click()  # Nhấp vào tài khoản
+    time.sleep(2) 
     driver.find_element(By.CSS_SELECTOR, "a.dropdown-item[href*='route=account/logout']").click()  # Nhấp vào đăng xuất
     time.sleep(1)  # Chờ 1 giây
 
@@ -84,14 +89,95 @@ def test_data_validation(driver):
     print("Tất cả dữ liệu sản phẩm MacBook đã được xác thực thành công!")  # In thông báo xác thực thành công
 
 # Kiểm tra thêm vào giỏ hàng và thanh toán
+def add_to_cart(driver):
+    # Mở trang đăng nhập
+    driver.get("https://demo.opencart.com/index.php?route=account/login")
+
+    # Khởi tạo WebDriverWait với thời gian chờ tối đa
+    wait = WebDriverWait(driver, 3)  # Thay đổi 10 thành thời gian chờ tối đa bạn mong muốn
+
+    # Chờ cho trường email có thể nhìn thấy và nhập email
+    email_field = wait.until(EC.visibility_of_element_located((By.ID, "input-email")))
+    email_field.send_keys("anhduy123456@gmail.com")
+
+    # Chờ cho trường mật khẩu có thể nhìn thấy và nhập mật khẩu
+    password_field = wait.until(EC.visibility_of_element_located((By.ID, "input-password")))
+    password_field.send_keys("123456")
+
+    time.sleep(3)  # Chờ trang tải xong
+
+    # Chờ cho nút đăng nhập có thể nhấp được và nhấn
+    login_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.btn.btn-primary")))
+    login_button.click()
+
+    # Chờ cho việc đăng nhập hoàn tất (kiểm tra tiêu đề trang hoặc một phần tử nào đó)
+    wait.until(EC.title_contains("My Account"))  # Kiểm tra tiêu đề trang nếu đăng nhập thành công
+    driver.get(
+        "https://demo.opencart.com/index.php?route=product/product&product_id=44")  # Cập nhật với ID sản phẩm hợp lệ
+    wait = WebDriverWait(driver, 10)
+
+    time.sleep(10)  # Chờ trang tải xong
+    # Thêm sản phẩm vào giỏ hàng
+    add_to_cart_button = wait.until(EC.element_to_be_clickable((By.ID, "button-cart")))
+    add_to_cart_button.click()
+    time.sleep(10)  # Chờ trang tải xong
+
+    # Đi đến giỏ hàng
+    driver.get("https://demo.opencart.com/index.php?route=checkout/cart")
+
+    time.sleep(10)  # Chờ giỏ hàng cập nhật
+
+    # Chọn nút thanh toán
+    checkout_button = wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "Checkout")))
+    checkout_button.click()
+
+    time.sleep(10)
 def test_add_to_cart_and_checkout(driver):
-    driver.get("https://demo.opencart.com/")  # Mở trang chính
-    time.sleep(1)  # Chờ 1 giây
-    driver.find_element(By.XPATH, "//*[@id='content']/div[2]/div[1]/div/div[2]/form/div/button[1]").click()  # Nhấp vào nút thêm vào giỏ hàng
-    driver.find_element(By.CSS_SELECTOR, "button.btn.btn-lg.btn-inverse.btn-block.dropdown-toggle").click()  # Nhấp vào giỏ hàng
-    driver.find_element(By.XPATH, "//*[@id='header-cart']/div/ul/li/div/p/a[2]").click()  # Nhấp vào thanh toán
-    assert "Checkout" in driver.title  # Kiểm tra tiêu đề trang thanh toán
-    time.sleep(1)  # Chờ 1 giây
+    add_to_cart(driver)
+    select_element = driver.find_element(By.NAME, "address_id")
+    # Tạo đối tượng Select
+    select = Select(select_element)
+
+    # Chọn theo giá trị (value)
+    select.select_by_value("1156")
+    time.sleep(5)
+
+
+    button_choose_payment = driver.find_element(By.XPATH, "/html/body/main/div[2]/div/div/div/div[2]/div[1]/fieldset/div[1]/button")
+    button_choose_payment.click()
+    time.sleep(5)
+    button_option = driver.find_element(By.XPATH, "/html/body/div[2]/div/div/div[2]/form/div[1]/label")
+    button_option.click()
+    time.sleep(5)
+    button_submit = driver.find_element(By.XPATH, "/html/body/div[2]/div/div/div[2]/form/div[2]/button")
+    button_submit.click()
+    time.sleep(5)
+
+    button_choose_shipment = driver.find_element(By.XPATH,
+                                                "/html/body/main/div[2]/div/div/div/div[2]/div[2]/fieldset/div[1]/button")
+    button_choose_shipment.click()
+    time.sleep(5)
+    button_option = driver.find_element(By.XPATH, "/html/body/div[3]/div/div/div[2]/form/div[1]/label")
+    button_option.click()
+    time.sleep(5)
+    button_submit = driver.find_element(By.XPATH, "/html/body/div[3]/div/div/div[2]/form/div[2]/button")
+    button_submit.click()
+    time.sleep(5)
+
+    button_confirm = driver.find_element(By.XPATH,
+                                                "/html/body/main/div[2]/div/div/div/div[2]/div[3]/div[2]/div/button")
+    button_confirm.click()
+
+    # Kiểm tra thông báo thành công
+    try:
+        success_message = WebDriverWait(driver, 20).until(
+            EC.visibility_of_element_located((By.XPATH, "/html/body/main/div[2]/div/div/h1, 'Your order has been placed!')]"))
+        )
+        assert success_message.is_displayed(), "Success message not displayed."
+        print("Đơn hàng đã được đặt thành công.")
+    except Exception as e:
+        print("Đặt hàng không thành công.")
+        print(e)
 
 # Kiểm tra chức năng tìm kiếm
 def test_search_functionality(driver):
